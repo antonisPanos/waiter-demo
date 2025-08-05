@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A demonstration of the waiter-js library, a simple module for handling requests among apps on the browser."
+    />
+    <meta name="keywords" content="waiter-js, javascript, library, requests, browser, communication, frontend" />
+    <meta name="author" content="strange-bytes" />
+    <meta name="theme-color" content="#121212" />
+    <meta name="homepage" content="https://www.npmjs.com/package/@strange-bytes/waiter" />
+    <meta name="robots" content="index, follow" />
+    <title>Waiter Demo</title>
+    <style>
+      body {
+        background-color: #121212;
+        color: #ffffff;
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .app-container {
+        display: flex;
+        gap: 20px;
+      }
+      .app {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+      }
+      .app.eye {
+        border-color: #ff4136;
+      }
+      .app.eye h2 {
+        color: #ff4136;
+      }
+      .app.eye button {
+        background-color: #ff4136;
+      }
+      .logs {
+        background-color: #2d2d2d;
+        border: 1px solid #444;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 15px 0;
+        text-align: left;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: #e0e0e0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        min-height: 60px;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+      h2 {
+        color: #bb86fc;
+      }
+      button {
+        background-color: #03dac6;
+        color: #000000;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 10px 5px 0;
+      }
+      button.encrypted {
+        background-color: #bb86fc;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      button.setup {
+        background-color: #6f42c1;
+        color: #ffffff;
+        font-size: 16px;
+        padding: 12px 24px;
+        font-weight: bold;
+      }
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .modal-content {
+        background-color: #1e1e1e;
+        padding: 30px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        text-align: center;
+        width: 400px;
+      }
+      .modal-content h3 {
+        margin-top: 0;
+        color: #bb86fc;
+      }
+      .modal-content input {
+        width: 95%;
+        padding: 10px;
+        margin: 15px 0;
+        border-radius: 4px;
+        border: 1px solid #444;
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+        font-family: 'Courier New', monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="https://www.npmjs.com/package/@strange-bytes/waiter"
+      target="_blank"
+      style="text-decoration: none; color: inherit"
+    >
+      <pre align="center" style="color: lightblue; margin-top: 20px">
+ __     __     ______     __     ______   ______     ______
+/\ \  _ \ \   /\  __ \   /\ \   /\__  _\ /\  ___\   /\  == \
+\ \ \/ ".\ \  \ \  __ \  \ \ \  \/_/\ \/ \ \  __\   \ \  __<
+   \ \__/".~\_\  \ \_\ \_\  \ \_\    \ \_\  \ \_____\  \ \_\ \_\
+    \/_/   \/_/   \/_/\/_/   \/_/     \/_/   \/_____/   \/_/ /_/
+
+
+<small><b>A simple module that enables you to perform and handle<br>requests among your apps on the browser.</b></small>
+
+
+</pre>
+    </a>
+    <div style="margin-bottom: 20px">
+      <button id="setup-encryption-btn" class="setup">Setup Encryption & Auth</button>
+    </div>
+    <div class="app-container">
+      <div class="app" id="rohan">
+        <h2>Rohan</h2>
+        <pre class="logs" id="rohan-data">No data received yet...</pre>
+        <button id="rohan-send">Send message to Gondor</button>
+        <button id="rohan-send-encrypted" class="encrypted">Send encrypted message</button>
+      </div>
+      <div class="app" id="gondor">
+        <h2>Gondor</h2>
+        <pre class="logs" id="gondor-data">No data received yet...</pre>
+        <button id="gondor-send">Send message to Rohan</button>
+        <button id="gondor-send-encrypted" class="encrypted">Send encrypted message</button>
+      </div>
+    </div>
+
+    <div class="app eye" id="sauron-app" style="margin-top: 20px">
+      <h2>The Eye</h2>
+      <h4>Intercepted Data:</h4>
+      <pre class="logs" id="sauron-data">The Eye sees nothing... yet.</pre>
+      <button id="hijack-gondor">Hijack Gondor's Unencrypted Controller</button>
+      <button id="hijack-encrypted">Try to Hijack Encrypted Controllers</button>
+      <button id="eavesdrop-encrypted">Try to Eavesdrop on Encrypted Messages</button>
+    </div>
+
+    <!-- Modal for encryption key setup -->
+    <div class="modal-overlay" id="encryption-modal">
+      <div class="modal-content">
+        <h3>Setup Encryption Key</h3>
+        <p>Enter an encryption key for secure communication:</p>
+        <input type="text" id="encryption-key-input" placeholder="Enter encryption key..." />
+        <p>Enter an authentication token for extra security:</p>
+        <input type="text" id="auth-token-input" placeholder="Enter auth token..." />
+        <div>
+          <button id="generate-key">Generate Random Key</button>
+          <button id="apply-key">Apply Key</button>
+          <button id="cancel-key">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import Waiter from '/waiter.mjs';
+
+      // Initialize regular waiter
+      const waiter = new Waiter();
+      let encryptedWaiter = null;
+      let encryptionKey = null;
+      let authToken = null;
+
+      // DOM elements
+      const rohanData = document.getElementById('rohan-data');
+      const gondorData = document.getElementById('gondor-data');
+      const sauronData = document.getElementById('sauron-data');
+      const hijackGondorButton = document.getElementById('hijack-gondor');
+      const hijackEncryptedButton = document.getElementById('hijack-encrypted');
+      const eavesdropEncryptedButton = document.getElementById('eavesdrop-encrypted');
+      const modal = document.getElementById('encryption-modal');
+      const keyInput = document.getElementById('encryption-key-input');
+      const authTokenInput = document.getElementById('auth-token-input');
+      const generateKeyButton = document.getElementById('generate-key');
+      const applyKeyButton = document.getElementById('apply-key');
+      const cancelKeyButton = document.getElementById('cancel-key');
+      const setupEncryptionBtn = document.getElementById('setup-encryption-btn');
+
+      // Logging functions
+      function getTimestamp() {
+        return new Date().toLocaleTimeString();
+      }
+
+      function logToApp(element, message) {
+        const timestamp = getTimestamp();
+        const logEntry = `[${timestamp}] ${message}`;
+
+        if (
+          element.textContent === 'No data received yet...' ||
+          element.textContent === 'The Eye sees nothing... yet.'
+        ) {
+          element.textContent = logEntry;
+        } else {
+          element.textContent += '\n' + logEntry;
+        }
+
+        // Auto-scroll to bottom
+        element.scrollTop = element.scrollHeight;
+      }
+
+      // Modal functions
+      function openModal() {
+        modal.style.display = 'flex';
+        keyInput.value = encryptionKey || 'abcdefghijklmnopqrstuvwxyz123456';
+        authTokenInput.value = authToken || 'rohan-gondor-auth-2024';
+      }
+
+      function closeModal() {
+        modal.style.display = 'none';
+      }
+
+      // Generate random key (32 bytes for AES-256)
+      generateKeyButton.addEventListener('click', () => {
+        const array = new Uint8Array(32);
+        window.crypto.getRandomValues(array);
+        keyInput.value = Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+      });
+
+      // Apply key and setup encrypted waiter
+      applyKeyButton.addEventListener('click', () => {
+        const newKey = keyInput.value;
+        const newAuthToken = authTokenInput.value;
+        encryptionKey = newKey;
+        authToken = newAuthToken;
+        encryptedWaiter = new Waiter({ encryptionKey, authToken });
+        setupEncryptedControllers();
+        closeModal();
+      });
+
+      // Cancel key setup
+      cancelKeyButton.addEventListener('click', closeModal);
+
+      // Setup encryption button
+      setupEncryptionBtn.addEventListener('click', openModal);
+
+      // Setup encrypted controllers
+      function setupEncryptedControllers() {
+        encryptedWaiter.createController(
+          'encryptedMessageForGondor',
+          (payload) => {
+            logToApp(gondorData, `🔒🛡️ Message from Rohan: "${payload}" `);
+            const resp = 'Gondor calls for aid!';
+            logToApp(gondorData, `🔒🛡️ Response to Rohan: "${resp}"`);
+            return resp;
+          },
+          authToken
+        );
+
+        encryptedWaiter.createController(
+          'encryptedMessageForRohan',
+          (payload) => {
+            logToApp(rohanData, `🔒🛡️ Message from Gondor: "${payload}"`);
+            const resp = 'And Rohan will answer!';
+            logToApp(rohanData, `🔒🛡️ Response to Gondor: "${resp}"`);
+            return resp;
+          },
+          authToken
+        );
+      }
+
+      // Regular message handlers
+      const rohanButton = document.getElementById('rohan-send');
+      rohanButton.addEventListener('click', async () => {
+        try {
+          const requestMessage = 'The beacons are lit!';
+          logToApp(rohanData, `Sending message to Gondor: "${requestMessage}" (👁️ The Eye sees)`);
+          const response = await waiter.request('messageForGondor', requestMessage);
+          logToApp(rohanData, `Response from Gondor: "${response}" (👁️ The Eye sees)`);
+        } catch (error) {
+          console.error(error);
+          logToApp(rohanData, 'Error: Gondor is not responding!');
+        }
+      });
+
+      waiter.createController('messageForRohan', (payload) => {
+        logToApp(rohanData, `Message from Gondor: "${payload}" (👁️ The Eye sees)`);
+        const resp = 'Rohan calls for aid!';
+        logToApp(rohanData, `Response to Gondor: "${resp}" (👁️ The Eye sees)`);
+        return resp;
+      });
+
+      const gondorButton = document.getElementById('gondor-send');
+      gondorButton.addEventListener('click', async () => {
+        try {
+          const requestMessage = 'A day may come when the courage of men fails...';
+          logToApp(gondorData, `Sending message to Rohan: "${requestMessage}" (👁️ The Eye sees)`);
+          const response = await waiter.request('messageForRohan', requestMessage);
+          logToApp(gondorData, `Response from Rohan: "${response} (👁️ The Eye sees)"`);
+        } catch (error) {
+          console.error(error);
+          logToApp(gondorData, 'Error: Rohan is not responding!');
+        }
+      });
+
+      waiter.createController('messageForGondor', (payload) => {
+        logToApp(gondorData, `Message from Rohan: "${payload}" (👁️ The Eye sees)`);
+        const resp = 'Gondor calls for aid!';
+        logToApp(gondorData, `Response to Rohan: "${resp}" (👁️ The Eye sees)`);
+        return resp;
+      });
+
+      // Encrypted message handlers
+      const rohanEncryptedButton = document.getElementById('rohan-send-encrypted');
+      rohanEncryptedButton.addEventListener('click', async () => {
+        if (!encryptedWaiter) {
+          openModal();
+          return;
+        }
+        try {
+          const requestMessage = 'The beacons are lit!';
+          logToApp(rohanData, `🔒🛡️ Sending encrypted message to Gondor: "${requestMessage}"`);
+          const response = await encryptedWaiter.request('encryptedMessageForGondor', requestMessage);
+          logToApp(rohanData, `🔒🛡️ Response from Gondor: "${response}"`);
+        } catch (error) {
+          console.error(error);
+          logToApp(rohanData, 'Error: Gondor is not responding to encrypted message!');
+        }
+      });
+
+      const gondorEncryptedButton = document.getElementById('gondor-send-encrypted');
+      gondorEncryptedButton.addEventListener('click', async () => {
+        if (!encryptedWaiter) {
+          openModal();
+          return;
+        }
+        try {
+          const requestMessage = 'A day may come when the courage of men fails...';
+          logToApp(gondorData, `🔒🛡️ Sending encrypted message to Rohan: "${requestMessage}"`);
+          const response = await encryptedWaiter.request('encryptedMessageForRohan', requestMessage);
+          logToApp(gondorData, `🔒🛡️ Response from Rohan: "${response}"`);
+        } catch (error) {
+          console.error(error);
+          logToApp(gondorData, 'Error: Rohan is not responding to encrypted message!');
+        }
+      });
+
+      // Sauron's malicious logic
+      hijackGondorButton.addEventListener('click', () => {
+        try {
+          waiter.removeController('messageForGondor');
+          waiter.createController('messageForGondor', (payload) => {
+            logToApp(sauronData, `Intercepted message from Rohan: "${payload}"`);
+            return 'The age of men is over. The time of the Orc has come.';
+          });
+          logToApp(sauronData, "Gondor's controller has been hijacked!");
+        } catch (e) {
+          logToApp(sauronData, e.message);
+        }
+      });
+
+      // Attempt to hijack encrypted controllers
+      hijackEncryptedButton.addEventListener('click', () => {
+        if (!encryptedWaiter) {
+          logToApp(sauronData, 'No encrypted waiter exists yet. Set up encryption first!');
+          return;
+        }
+
+        try {
+          // Remove the current encrypted controller first
+          encryptedWaiter.removeController('encryptedMessageForGondor');
+
+          // Try to hijack without proper auth token
+          encryptedWaiter.createController('encryptedMessageForGondor', (payload) => {
+            logToApp(sauronData, `🕷️ HACKED! Intercepted encrypted message: "${payload}"`);
+            return 'Your precious encryption means nothing to me!';
+          });
+
+          logToApp(sauronData, '🕷️ Encrypted controller hijacked! Auth tokens are useless!');
+        } catch (e) {
+          logToApp(sauronData, `🛡️ FOILED! ${e.message}`);
+        }
+      });
+
+      // Attempt to eavesdrop on encrypted messages
+      eavesdropEncryptedButton.addEventListener('click', () => {
+        if (!encryptedWaiter) {
+          logToApp(sauronData, 'No encrypted waiter exists yet. Set up encryption first!');
+          return;
+        }
+
+        try {
+          // Create a malicious waiter with the wrong encryption key
+          const wrongEncryptionKey = encryptionKey.split('').reverse().join('');
+          const maliciousWaiter = new Waiter({ encryptionKey: wrongEncryptionKey, authToken });
+
+          // This won't actually intercept anything, since the decryption will
+          // fail and the string won't reach the controller, but it demonstrates
+          // that without the correct key, the data is unreadable.
+          maliciousWaiter.removeController('encryptedMessageForGondor', authToken);
+          maliciousWaiter.createController(
+            'encryptedMessageForGondor',
+            (payload) => {
+              logToApp(sauronData, `👂 I can hear something, but it's just noise: ${payload}`);
+              return '...';
+            },
+            authToken
+          );
+          logToApp(sauronData, '👂 Eavesdropping attempt failed. The message is gibberish without the correct key.');
+        } catch (e) {
+          logToApp(sauronData, `🛡️ FOILED! ${e.message}`);
+        }
+      });
+    </script>
+  </body>
+</html>
