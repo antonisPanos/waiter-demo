@@ -184,6 +184,23 @@
         .simple-mode .encrypted-only {
             display: none;
         }
+
+        .security-disclaimer {
+            background-color: rgba(255, 255, 0, 0.1);
+            border: 2px solid rgba(255, 255, 0, 0.4);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 20px 20px;
+            max-width: 800px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+
+        .simple-mode .security-disclaimer {
+            display: none;
+        }
     </style>
 </head>
 <body class="simple-mode">
@@ -237,6 +254,11 @@
     <button id="hijack-gondor">Hijack Gondor's Unencrypted Controller</button>
     <button id="hijack-encrypted">Try to Hijack Encrypted Controllers</button>
     <button id="eavesdrop-encrypted">Try to Eavesdrop on Encrypted Messages</button>
+</div>
+
+<!-- Security Disclaimer -->
+<div class="security-disclaimer encrypted-only">
+    <strong>⚠️ Security Disclaimer:</strong> This is not a robust security solution. The encryption and authentication features are designed primarily to prevent casual interception by automated third-party scripts. Anyone with access to browser developer tools can potentially access the encryption keys, intercept communications, and decrypt the data. For truly sensitive operations, always use server-side validation and never rely solely on client-side security measures.
 </div>
 
 <!-- Modal for encryption key setup -->
