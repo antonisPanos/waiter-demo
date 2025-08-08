@@ -334,7 +334,7 @@
       'encryptedMessageForGondor',
       (payload) => {
         logToApp(gondorData, `🔒🛡️ Message from Rohan: "${payload}" `);
-        const resp = 'Gondor calls for aid!';
+        const resp = 'This day we fight!';
         logToApp(gondorData, `🔒🛡️ Response to Rohan: "${resp}"`);
         return resp;
       },
@@ -356,7 +356,7 @@
   const rohanButton = document.getElementById('rohan-send');
   rohanButton.addEventListener('click', async () => {
     try {
-      const requestMessage = 'The beacons are lit!';
+      const requestMessage = 'Ride now! Ride now! Ride! Ride for ruin and the world\'s ending!';
       logToApp(rohanData, `Sending message to Gondor: "${requestMessage}" (👁️ The Eye sees)`);
       const response = await waiter.request('messageForGondor', requestMessage);
       logToApp(rohanData, `Response from Gondor: "${response}" (👁️ The Eye sees)`);
@@ -368,7 +368,7 @@
 
   waiter.createController('messageForRohan', (payload) => {
     logToApp(rohanData, `Message from Gondor: "${payload}" (👁️ The Eye sees)`);
-    const resp = 'Rohan calls for aid!';
+    const resp = 'And Rohan will answer!';
     logToApp(rohanData, `Response to Gondor: "${resp}" (👁️ The Eye sees)`);
     return resp;
   });
@@ -376,7 +376,7 @@
   const gondorButton = document.getElementById('gondor-send');
   gondorButton.addEventListener('click', async () => {
     try {
-      const requestMessage = 'A day may come when the courage of men fails...';
+      const requestMessage = 'Gondor calls for aid!';
       logToApp(gondorData, `Sending message to Rohan: "${requestMessage}" (👁️ The Eye sees)`);
       const response = await waiter.request('messageForRohan', requestMessage);
       logToApp(gondorData, `Response from Rohan: "${response} (👁️ The Eye sees)"`);
@@ -388,7 +388,7 @@
 
   waiter.createController('messageForGondor', (payload) => {
     logToApp(gondorData, `Message from Rohan: "${payload}" (👁️ The Eye sees)`);
-    const resp = 'Gondor calls for aid!';
+    const resp = 'This day we fight!';
     logToApp(gondorData, `Response to Rohan: "${resp}" (👁️ The Eye sees)`);
     return resp;
   });
@@ -401,7 +401,7 @@
       return;
     }
     try {
-      const requestMessage = 'The beacons are lit!';
+      const requestMessage = 'Ride now! Ride now! Ride! Ride for ruin and the world\'s ending!';
       logToApp(rohanData, `🔒🛡️ Sending encrypted message to Gondor: "${requestMessage}"`);
       const response = await encryptedWaiter.request('encryptedMessageForGondor', requestMessage);
       logToApp(rohanData, `🔒🛡️ Response from Gondor: "${response}"`);
@@ -418,7 +418,7 @@
       return;
     }
     try {
-      const requestMessage = 'A day may come when the courage of men fails...';
+      const requestMessage = 'Gondor calls for aid!';
       logToApp(gondorData, `🔒🛡️ Sending encrypted message to Rohan: "${requestMessage}"`);
       const response = await encryptedWaiter.request('encryptedMessageForRohan', requestMessage);
       logToApp(gondorData, `🔒🛡️ Response from Rohan: "${response}"`);
@@ -506,14 +506,14 @@
 
     waiter.createController('messageForRohan', (payload) => {
       logToApp(rohanData, `Message from Gondor: "${payload}" (👁️ The Eye sees)`);
-      const resp = 'Rohan calls for aid!';
+      const resp = 'And Rohan will answer!';
       logToApp(rohanData, `Response to Gondor: "${resp}" (👁️ The Eye sees)`);
       return resp;
     });
 
     waiter.createController('messageForGondor', (payload) => {
       logToApp(gondorData, `Message from Rohan: "${payload}" (👁️ The Eye sees)`);
-      const resp = 'Gondor calls for aid!';
+      const resp = 'This day we fight!';
       logToApp(gondorData, `Response to Rohan: "${resp}" (👁️ The Eye sees)`);
       return resp;
     });
